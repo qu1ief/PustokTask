@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PustokTask.Data;
-using PustokTask.Models;
 using PustokTask.ViewModels;
-using System.Diagnostics;
 
 namespace PustokTask.Controllers
 {

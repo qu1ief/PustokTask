@@ -1,37 +1,49 @@
 ﻿@using PustokTask.Helpers
-@model PaginatedList<Genre>
+@model PaginatedList<Slider>
 @{
     int count = 1;
 }
 <table class="table">
-    <a class="btn btn-success" asp-action="create" asp-controller="genre">
+    <a class="btn btn-success" asp-action="create" asp-controller="slider">
         Create
     </a>
     <thead>
         <tr>
             <th scope="col">Count</th>
+            <th scope="col">Image Name</th>
             <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Button Link</th>
+            <th scope="col">Button Text</th>
+            <th scope="col">Order</th>
             <th scope="col">Created_Date</th>
             <th scope="col">Updated_Date</th>
             <th scope="col">Settings</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var genre in Model)
+        @foreach (var slider in Model)
         {
             <tr>
                 <th>@count</th>
-                <td>@genre.Name</td>
-                <td>@genre.CreatedDate.ToString("d")</td>
-                <td>@genre.UpdateDate.ToString("d")</td>
                 <td>
-                    <a class="btn btn-primary" asp-action="edit" asp-controller="genre" asp-route-id="@genre.Id">
+                    <img width="150" height="150" src="~/assets/image//bg-images/@slider.ImgName" alt="" />
+                </td>
+                <td>@slider.Name</td>
+                <td>@slider.Desc</td>
+                <td>@slider.ButtonLink</td>
+                <td>@slider.ButtonText</td>
+                <td>@slider.Order</td>
+                <td>@slider.CreatedDate.ToString("d")</td>
+                <td>@slider.UpdateDate.ToString("d")</td>
+                <td>
+                    <a class="btn btn-primary" asp-action="edit" asp-controller="slider" asp-route-id="@slider.Id">
                         Edit
                     </a>
-                    <a class="btn btn-primary" asp-action="detail" asp-controller="genre" asp-route-id="@genre.Id">
+                    <a class="btn btn-primary" asp-action="detail" asp-controller="slider" asp-route-id="@slider.Id">
                         Details
                     </a>
-                    <a asp-area="Manage" asp-action="Delete" asp-controller="Genre" asp-route-id="@genre.Id" class="btn btn-danger deleteGenre">
+                    <a asp-action="delete" asp-controller="slider" asp-route-id="@slider.Id" class="btn btn-danger deleteslider">
                         Delete
                     </a>
                 </td>
@@ -46,8 +58,8 @@
 <nav aria-label="...">
     <ul class="pagination justify-content-center">
         <li class="page-item @(Model.HasPrevious?"":"disabled")">
-      
-            <a class="page-link" asp-action="index" asp-controller="genre" asp-route-page="@(Model.CurentPage-1)" tabindex="-1">Previous</a>
+            @* @(ViewBag.currentPage==1?"disabled":"") hec hasprevious propertysi teyin elemeden de bele bir sey yazmaq olardi *@
+            <a class="page-link" asp-action="index" asp-controller="slider" asp-route-page="@(Model.CurentPage-1)" tabindex="-1">Previous</a>
         </li>
 
         @for (int i = Model.First; i <= Model.Last; i++)
@@ -56,7 +68,8 @@
         }
 
         <li class="page-item @(Model.HasNext?"":"disabled")">
-            <a class="page-link" asp-action="index" asp-controller="genre" asp-route-page="@(Model.CurentPage+1)">Next</a>
+            @* @(ViewBag.currentPage==ViewBag.pageCount?"disabled":"") buda hasNext olmadan yazilis *@
+            <a class="page-link" asp-action="index" asp-controller="slider" asp-route-page="@(Model.CurentPage+1)">Next</a>
         </li>
     </ul>
 </nav>
@@ -65,7 +78,7 @@
 @section scripts {
     <script>
         $(document).ready(function () {
-            $('.deleteGenre').on('click', function (e) {
+            $('.deleteslider').on('click', function (e) {
                 e.preventDefault();
                 Swal.fire({
                     title: "Are you sure?",
