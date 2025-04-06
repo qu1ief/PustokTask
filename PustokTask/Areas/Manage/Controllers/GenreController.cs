@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PustokTask.Data;
 using PustokTask.Helpers;
@@ -7,6 +8,8 @@ using PustokTask.Models;
 namespace PartialView.pustok.Areas.Manage.Controllers
 {
     [Area("Manage")]
+    [Authorize]
+
     public class GenreController(PustokDbContex _pustokDbContext) : Controller
     {
         public IActionResult Index(int page = 1, int take = 10)

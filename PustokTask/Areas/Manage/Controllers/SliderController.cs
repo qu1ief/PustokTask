@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using PustokTask.Data;
 using PustokTask.Helpers;
@@ -8,6 +9,8 @@ using PustokTask.Services;
 namespace PustokTask.Areas.Manage.Controllers
 {
     [Area("Manage")]
+    [Authorize]
+
     public class SliderController : Controller
     {
 

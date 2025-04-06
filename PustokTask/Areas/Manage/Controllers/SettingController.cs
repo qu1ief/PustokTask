@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PustokTask.Data;
 using PustokTask.Models;
@@ -6,6 +7,8 @@ using PustokTask.Models;
 namespace PustokTask.Areas.Manage.Controllers
 {
     [Area("Manage")]
+    [Authorize]
+
 
     public class SettingController(PustokDbContex pustokDbContex) : Controller
     {

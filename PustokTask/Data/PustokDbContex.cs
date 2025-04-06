@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PustokTask.Models;
 
 namespace PustokTask.Data
 {
-    public class PustokDbContex : DbContext
+    public class PustokDbContex : IdentityDbContext<AppUser>
     {
         public DbSet<Slider> Sliders { get; set; }
         public DbSet<Book> Books { get; set; }
@@ -13,6 +14,7 @@ namespace PustokTask.Data
         public DbSet<BookTag> BookTags { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Setting> Settings { get; set; }
+        public DbSet<AppUser> AppUsers { get; set; }
         public PustokDbContex(DbContextOptions options) : base(options)
         {
         }

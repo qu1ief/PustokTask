@@ -1,0 +1,50 @@
+﻿@model UserRegisterVm
+<main class="page-section inner-page-sec-padding-bottom">
+	<div class="container">
+		<div class="row">
+				<!-- Login Form s-->
+				<form action="register" method="post" >
+				<div class="text-danger" asp-validation-summary="ModelOnly"></div>
+
+					<div class="login-form">
+						<h4 class="login-title">New Customer</h4>
+						<p><span class="font-weight-bold">I am a new customer</span></p>
+						<div class="row">
+							<div class="col-md-12 col-12 mb--15">
+								<label asp-for="FullName" >Full Name</label>
+								<input asp-for="FullName" class="mb-0 form-control" type="text" id="name"
+									   placeholder="Enter your full name">
+							</div>
+						<div class="col-md-12 col-12 mb--15">
+							<label asp-for="UserName">Full Name</label>
+							<input asp-for="UserName" class="mb-0 form-control" type="text" id="name"
+								   placeholder="Enter your full name">
+						</div>
+							<div class="col-12 mb--20">
+								<label asp-for="Email" for="email">Email</label>
+								<input asp-for="Email" class="mb-0 form-control" type="email" id="email" placeholder="Enter Your Email Address Here..">
+							</div>
+							<div class="col-lg-6 mb--20">
+								<label asp-for="Password" >Password</label>
+								<input asp-for="Password" class="mb-0 form-control" type="password" id="password" placeholder="Enter your password">
+							</div>
+							<div class="col-lg-6 mb--20">
+								<label asp-for="ConfirmPassword" >Repeat Password</label>
+								<input asp-for="ConfirmPassword" type="password" id="repeat-password" placeholder="Repeat your password">
+							</div>
+							<div class="col-md-12">
+								
+								<button type="submit" class="btn btn-outlined">Register</button>
+								<a asp-action="Login" class="btn btn-outlined">Login</a>
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="text-danger" asp-validation-summary="ModelOnly" ></div>
+			</div>
+			
+		</div>
+</main>
+@section scripts{
+	@Html.Partial("_ValidationScriptsPartial")
+}
