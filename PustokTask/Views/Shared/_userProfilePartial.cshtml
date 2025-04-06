@@ -1,0 +1,39 @@
+﻿@model UserUpdateProfile
+<form action="#">
+	<div class="row">
+		<div class="col-lg-6 col-12  mb--30">
+			<input asp-for="FullName" >
+			<span asp-validation-for="FullName" ></span>
+		</div>
+		<div class="col-lg-6 col-12  mb--30">
+			<input asp-for="UserName">
+			<span asp-validation-for="UserName"></span>
+		</div>
+		<div class="col-12  mb--30">
+			<input asp-for="Email">
+			<span asp-validation-for="Email"></span>
+		</div>
+		
+		<div class="col-12  mb--30">
+			<h4>Password change</h4>
+		</div>
+		<div class="col-12  mb--30">
+			<input asp-for="CurentPassword">
+			<span asp-validation-for="CurentPassword"></span>
+
+		</div>
+		<div class="col-12  mb--30">
+			<input asp-for="NewPassword">
+			<span asp-validation-for="NewPassword"></span>
+
+		</div>
+		<div class="col-12  mb--30">
+			<input asp-for="ConfirmPassword">
+			<span asp-validation-for="ConfirmPassword"></span>
+
+		</div>
+		<div class="col-12">
+			<button type="submit" class="btn btn--primary">Save Changes</button>
+		</div>
+	</div>
+</form>

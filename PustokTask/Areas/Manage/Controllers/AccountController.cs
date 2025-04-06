@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PustokTask.Models;
 using PustokTask.ViewModels;
@@ -10,11 +11,13 @@ namespace PustokTask.Areas.Manage.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
         public async Task<IActionResult> CreateAdmin()
@@ -48,6 +51,11 @@ namespace PustokTask.Areas.Manage.Controllers
                 return View();
             }
 
+            if (await _userManager.IsInRoleAsync(user, "Admin") ||! await _userManager.IsInRoleAsync(user, "SuperAdmin"))
+            {
+                ModelState.AddModelError("", "You are not allowed to Login here");
+                return View();
+            }
             var result = await _userManager.CheckPasswordAsync(user, adminLoginVm.Password);
 
             if (!result)
@@ -75,6 +83,12 @@ namespace PustokTask.Areas.Manage.Controllers
             return RedirectToAction("Login");
         }
 
-         
+        public async Task<IActionResult> CreateRole()
+        {
+            await _roleManager.CreateAsync(new IdentityRole { Name = "Admin" });
+            await _roleManager.CreateAsync(new IdentityRole { Name = "SuperAdmin" });
+            await _roleManager.CreateAsync(new IdentityRole { Name = "Menber" });
+            return Content("Role created");
+        }
     }
 }
