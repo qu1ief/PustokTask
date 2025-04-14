@@ -19,4 +19,5 @@ public class ResertPasswordVm
 	[Compare("NewPassword")]
 	public string ConfirmPassword { get; set; }
 	public string Email { get; set; }
+	public string Token { get; set; }
 }

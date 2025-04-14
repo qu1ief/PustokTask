@@ -8,6 +8,7 @@ using PustokTask.ViewModels;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using NuGet.Protocol;
+using PustokTask.Services;
 
 namespace PustokTask.Controllers;
 
@@ -16,12 +17,14 @@ public class AccountController : Controller
 	private readonly UserManager<AppUser> _userManager;
 	private readonly SignInManager<AppUser> _signInManager;
 	private readonly RoleManager<IdentityRole> _roleManager;
+	private readonly EmailService emailService;
 
-	public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager)
+	public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager, EmailService emailService)
 	{
 		_userManager = userManager;
 		_signInManager = signInManager;
 		_roleManager = roleManager;
+		this.emailService = emailService;
 	}
 	[HttpGet]
 	public async Task<IActionResult> Register()
@@ -64,10 +67,39 @@ public class AccountController : Controller
 			return View();
 		}
 
+		var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+		var url = Url.Action("VerifyEmail", "Account", new { email = user.Email, token = token }, Request.Scheme);
+
+		
+
+		using StreamReader streamReader = new StreamReader("wwwroot/templates/verify.html");
+		string body = await streamReader.ReadToEndAsync();
+		body = body.Replace("{{url}}", url);
+		body = body.Replace("{{usarname}}", user.Fulname);
+		emailService.SendEmail(user.Email, "Verify Email", body);
+
 
 		return RedirectToAction("login");
 	}
+	public IActionResult VerifyEmail(string email , string token)
+	{
+		if(email == null || token == null)
+		{
+			return NotFound();
+		}
+		var user =  _userManager.FindByEmailAsync(email).Result;
+		if (user == null)
+		{
+			return NotFound();
+		}
 
+		var result = _userManager.ConfirmEmailAsync(user ,token).Result;
+		if (!result.Succeeded)
+		{
+			return NotFound();
+		}
+		return RedirectToAction("Login");
+	}
 
 	[HttpGet]
 	public async Task<IActionResult> Login()
@@ -101,6 +133,10 @@ public class AccountController : Controller
 
 		var r = await _signInManager.PasswordSignInAsync(user, vm.Password, vm.RebemberMe, true);
 
+		if (!user.EmailConfirmed)
+		{
+			ModelState.AddModelError("" , "verify email");
+		}
 		if (r.IsLockedOut)
 		{
 			ModelState.AddModelError("", "Account is locked out");
@@ -227,20 +263,15 @@ public class AccountController : Controller
 		var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 		var url = Url.Action("ResertPassword", "Account", new { email = user.Email, token = token }, Request.Scheme);
 
-		var email = new MimeMessage();
-		email.From.Add(MailboxAddress.Parse("allupproje@gmail.com"));
-		email.To.Add(MailboxAddress.Parse("myrtle.waters@ethereal.email"));
-		email.Subject = "Resert Password";
-		email.Body = new TextPart(TextFormat.Html) { Text = $"< a href = '{url}' >click</a>" };
 
-		using var smtp = new SmtpClient();
-		smtp.Connect("smtp.ethereal.email", 587, SecureSocketOptions.StartTls);
-		smtp.Authenticate("allupproje@gmail.com", "srge clqo huup dipv");
-		smtp.Send(email);
-		smtp.Disconnect(true);
-		return Json(url);
-		return RedirectToAction("index");
+		using StreamReader streamReader = new StreamReader("wwwroot/templates/forgotpassword.html");
+		string body =await streamReader.ReadToEndAsync();
+		body = body.Replace("{{url}}" , url);
+		body = body.Replace("{{usarname}}" , user.Fulname);
 
+		emailService.SendEmail(user.Email, "resert password", body);
+
+		return RedirectToAction("login");
 
 	}
 	public async Task<IActionResult> ResertPassword()
