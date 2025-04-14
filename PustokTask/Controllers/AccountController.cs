@@ -47,6 +47,7 @@ public class AccountController : Controller
         };
 
         var result = await _userManager.CreateAsync(user, userRegister.Password);
+        await _userManager.AddToRoleAsync(user, "Menber");
 
 
         if (!result.Succeeded)
@@ -57,7 +58,7 @@ public class AccountController : Controller
             }
             return View();
         }
-        await _userManager.AddToRoleAsync(user, "Menber");
+
 
         return RedirectToAction("login");
     }
@@ -117,7 +118,7 @@ public class AccountController : Controller
         return RedirectToAction("Login");
     }
 
-    [Authorize(Roles ="Menber")]
+    [Authorize(Roles = "Menber")]
     public async Task<IActionResult> Profile()
     {
         var user = await _userManager.GetUserAsync(User);
@@ -134,6 +135,45 @@ public class AccountController : Controller
         };
 
         return View(vm);
+    }
+    [Authorize(Roles = "Menber")]
+    [HttpPost]
+
+    public async Task<IActionResult> Profile(UserUpdateProfile userUpdateProfileVM)
+    {
+
+        UserProfileVm userProfileVm = new UserProfileVm
+        {
+
+            UserUpdateProfilee = userUpdateProfileVM
+        };
+        if (!ModelState.IsValid)
+        {
+            return View();
+        }
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return NotFound();
+
+        }
+        user.Fulname = userUpdateProfileVM.FullName;
+        user.UserName = userUpdateProfileVM.UserName;
+        user.Email = userUpdateProfileVM.Email;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            return View();
+        }
+        await _signInManager.SignInAsync(user,  true);
+        return RedirectToAction("index", "Home");
+
+
     }
 
 }

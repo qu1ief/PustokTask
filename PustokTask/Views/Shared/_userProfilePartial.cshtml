@@ -1,5 +1,5 @@
 ﻿@model UserUpdateProfile
-<form action="#">
+<form method="post">
 	<div class="row">
 		<div class="col-lg-6 col-12  mb--30">
 			<input asp-for="FullName" >
@@ -18,17 +18,17 @@
 			<h4>Password change</h4>
 		</div>
 		<div class="col-12  mb--30">
-			<input asp-for="CurentPassword">
+			<input asp-for="CurentPassword" placeholder="CurentPassword">
 			<span asp-validation-for="CurentPassword"></span>
 
 		</div>
 		<div class="col-12  mb--30">
-			<input asp-for="NewPassword">
-			<span asp-validation-for="NewPassword"></span>
+			<input asp-for="NewPassword" placeholder=" NewPassword">
+			<span asp-validation-for="NewPassword" ></span>
 
 		</div>
 		<div class="col-12  mb--30">
-			<input asp-for="ConfirmPassword">
+			<input asp-for="ConfirmPassword" placeholder="ConfirmPassword">
 			<span asp-validation-for="ConfirmPassword"></span>
 
 		</div>
