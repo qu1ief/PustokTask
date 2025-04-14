@@ -11,6 +11,26 @@ builder.Services.AddDbContext<PustokDbContex>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("MvcProject"));
 });
 
+builder.Services.ConfigureApplicationCookie(opt =>
+{
+    opt.Events.OnRedirectToLogin = opt.Events.OnRedirectToAccessDenied = context =>
+    {
+        var uri = new Uri(context.RedirectUri);
+
+        if (context.Request.Path.Value.ToLower().StartsWith("/manage"))
+        {
+            context.Response.Redirect("/manage/account/login" + uri.Query);
+        }
+        else
+        {
+            context.Response.Redirect("/account/login" + uri.Query);
+        }
+
+        return Task.CompletedTask;
+    };
+});
+
+
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -24,7 +44,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
     options.Lockout.AllowedForNewUsers = true;
 
-}).AddEntityFrameworkStores<PustokDbContex>();
+}).AddEntityFrameworkStores<PustokDbContex>().AddDefaultTokenProviders();
 // Configure the HTTP request pipeline.
 
 var app = builder.Build();

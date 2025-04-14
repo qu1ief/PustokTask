@@ -1,8 +1,6 @@
-﻿namespace PustokTask.ViewModels
-{
-    public class UserProfileVm
-    {
+﻿namespace PustokTask.ViewModels;
 
-      public UserUpdateProfile UserUpdateProfilee { get; set; }  
-    }
+public class UserProfileVm
+{
+  public UserUpdateProfile UserUpdateProfilee { get; set; }  
 }
