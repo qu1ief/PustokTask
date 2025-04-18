@@ -10,6 +10,5 @@ namespace PustokTask.ViewModels
         public int TotaComments {  get; set; }
         public decimal RateAvg { get; set; }
         public BookComment BookComment { get; set; }
-        public List<BookComment> BookComments { get; set; }
     }
 }

@@ -157,6 +157,10 @@
                                     <p>
                                         @comment.Text
                                     </p>
+                                    @if(User.Identity.Name == comment.AppUser.UserName)
+                                    {
+                                        <a asp-action="DeleteComment" asp-route-id="@comment.Id" class="btn btn-danger">Delete</a>
+                                    })
                                 </div>
                             </div>
                         }
@@ -185,6 +189,9 @@
                                                 <label for="message">Comment</label>
                                                 <input type="hidden" asp-for="@Model.BookComment.BookId" value="@Model.Book.Id" />
                                                 <input asp-for="@Model.BookComment.Text" cols="30" rows="10" class="form-control">
+                                                <span class="text-danger" asp-validation-for="@Model.BookComment.Text"></span>
+
+
                                             </div>
                                         </div>
 
@@ -254,3 +261,5 @@
                 </div>
             </div>
         </section>
+
+      

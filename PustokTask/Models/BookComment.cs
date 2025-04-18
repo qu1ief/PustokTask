@@ -1,7 +1,10 @@
-﻿namespace PustokTask.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PustokTask.Models;
 
 public class BookComment : BaseEntity
 {
+    [Required(ErrorMessage = "Comment is requared")]
     public string Text { get; set; }
     public int Rate { get; set; }
     public int BookId { get; set; }

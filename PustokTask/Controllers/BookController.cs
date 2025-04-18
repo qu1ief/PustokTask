@@ -19,57 +19,23 @@ namespace PustokTask.Controllers
         {
             if (id == null)
                 return NotFound();
-            var existBooks =await pustokDbContex.Books
-                .Include(b => b.Author)
-                .Include(b => b.Genre)
-                .Include(b => b.BookImages)
-                .Include(b => b.BookComments)
-                .Include(b => b.BookTags)
-                .ThenInclude(b => b.Tag)
-                .FirstOrDefaultAsync(b => b.Id == id);
-            if (existBooks == null)
-                return NotFound();
 
-            BookDetailVm vm = new()
+            var user = userManager.GetUserAsync(User).Result;
+
+            if (user != null)
             {
-                Book = existBooks,
-                RelatedBooks = await pustokDbContex.Books
-                .Include(b => b.Author)
-                .Include(b => b.Genre)
-                .Include(b => b.BookImages)
-                .Where(b => b.GenreId == id)
-                .ToListAsync()
-            };
-            if (User.Identity.IsAuthenticated)
-            {
-
-                var user =  userManager.FindByNameAsync(User.Identity.Name).Result;
-                if (user != null)
-                {
-                    var commnet = await pustokDbContex.BookComments.FirstOrDefaultAsync(b => b.BookId == id && b.AppUserId == user.Id && b.Status != CommentStatus.Rejected);
-
-
-                    vm.HasComment = await pustokDbContex.BookComments.AnyAsync(b => b.AppUserId == user.Id && b.BookId == id);
-                    vm.TotaComments = await pustokDbContex.BookComments.CountAsync(b => b.BookId == id);
-                    vm.RateAvg = vm.TotaComments > 0 ? (decimal)await pustokDbContex.BookComments
-                        .Where(b => b.BookId == id)
-                        .AverageAsync(b => b.Rate) : 0;
-
-
-                }
-                else
-                {
+                var vm = await GetBookDetailVm((int)id, user.Id);
+                if (vm.Book == null)
                     return NotFound();
-                }
+                return View(vm);
             }
             else
             {
-                vm.TotaComments = pustokDbContex.BookComments.Count(b => b.BookId == id);
-                vm.RateAvg = (decimal)pustokDbContex.BookComments
-                    .Where(b => b.BookId == id)
-                    .Average(b => b.Rate);
+                var vm = await GetBookDetailVm((int)id);
+                if (vm.Book == null)
+                    return NotFound();
+                return View(vm);
             }
-            return View(vm);
         }
         public IActionResult BookModal(int? id)
         {
@@ -86,19 +52,101 @@ namespace PustokTask.Controllers
         }
         [HttpPost]
         //[Authorize(Roles ="Menber")]
-        public IActionResult AddComment(BookComment bookComment)
+        public async Task<IActionResult> AddComment(BookComment bookComment)
         {
-            
+            if (!pustokDbContex.Books.Any(b => b.Id == bookComment.BookId))
+            {
+                return NotFound();
+            }
 
             var user = userManager.FindByNameAsync(User.Identity.Name).Result;
             if (user == null)
             {
                 return RedirectToAction("login", "account", new { returnurl = Url.Action("detail", "book", new { id = bookComment.BookId }) });
             }
-            bookComment.AppUserId =user.Id;
+
+
+            if (!ModelState.IsValid)
+            {
+                var vm = await GetBookDetailVm(bookComment.BookId, user.Id);
+                vm.BookComment = bookComment;
+                return View("Detail", vm);
+            }
+
+            bookComment.AppUserId = user.Id;
             pustokDbContex.BookComments.Add(bookComment);
-            pustokDbContex.SaveChangesAsync();
+            await pustokDbContex.SaveChangesAsync();
             return RedirectToAction(Url.Action("detail", "book", new { id = bookComment.BookId }));
+        }
+
+        private async Task<BookDetailVm> GetBookDetailVm(int bookId, string userId = null)
+        {
+
+            var existBooks = await pustokDbContex.Books
+                .Include(b => b.Author)
+                .Include(b => b.Genre)
+                .Include(b => b.BookImages)
+                .Include(b => b.BookComments.Where(bc => bc.Status == CommentStatus.Approved))
+                .Include(b => b.BookTags)
+                .ThenInclude(b => b.Tag)
+                .FirstOrDefaultAsync(b => b.Id == bookId);
+
+
+            BookDetailVm bookDetailVm = new()
+            {
+                Book = existBooks,
+                RelatedBooks = pustokDbContex.Books
+                .Include(b => b.Author)
+                .Include(b => b.Genre)
+                .Include(b => b.BookImages)
+                .Where(b => b.GenreId == existBooks.GenreId)
+                .ToList()
+            };
+
+
+            if (userId != null)
+            {
+                var user = userManager.FindByNameAsync(User.Identity.Name).Result;
+
+                if (user != null)
+                {
+
+                    bookDetailVm.HasComment = await pustokDbContex.BookComments.AnyAsync(b => b.AppUserId == user.Id && b.BookId == bookId && b.Status != CommentStatus.Rejected);
+
+                }
+
+
+            }
+
+            bookDetailVm.TotaComments = await pustokDbContex.BookComments.CountAsync(b => b.BookId == bookId);
+            bookDetailVm.RateAvg = bookDetailVm.TotaComments > 0 ? (decimal)await pustokDbContex.BookComments
+                .Where(b => b.BookId == bookId)
+                .AverageAsync(b => b.Rate) : 0;
+
+
+            return bookDetailVm;
+        }
+
+        public IActionResult DeleteComment(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+
+            }
+            var exsistComment = pustokDbContex.BookComments
+                .Include(c=>c.AppUser)
+                .Include(b => b.Book)
+                .FirstOrDefault(b => b.Id == id);
+
+            if (exsistComment == null)
+            {
+                return NotFound();
+            }
+
+            pustokDbContex.BookComments.Remove(exsistComment);
+            pustokDbContex.SaveChanges();
+            return RedirectToAction("Detail", "Book", new { id = exsistComment.BookId });
         }
     }
 }
