@@ -32,5 +32,12 @@ namespace PustokTask.Models
         public List<BookImage> BookImages { get;set; }
         public List<BookTag> BookTags { get; set; }
 
+        public List<BookComment> BookComments { get; set; }
+
+        public Book()
+        {
+            BookComments = new List<BookComment>();
+        }
+
     }
 }

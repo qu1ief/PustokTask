@@ -4,6 +4,7 @@ using PustokTask;
 using PustokTask.Data;
 using PustokTask.Models;
 using PustokTask.Services;
+using PustokTask.ViewModels;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.Services.AddDbContext<PustokDbContex>(options => {
 });
 
 
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 builder.Services.AddService(builder.Configuration);
 var app = builder.Build();
 

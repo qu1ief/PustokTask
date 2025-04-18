@@ -25,8 +25,8 @@
               "swipe": false,
               "asNavFor": ".product-slider-nav"
               }'>
-                   
-                  @foreach (var img in Model.Book.BookImages)
+
+                    @foreach (var img in Model.Book.BookImages)
                     {
                         <div class="single-slide">
                             <img src="~/image/products/@img.Image" alt="">
@@ -78,11 +78,12 @@
                     }
                     <div class="rating-widget">
                         <div class="rating-block">
-                            <span class="fas fa-star star_on"></span>
-                            <span class="fas fa-star star_on"></span>
-                            <span class="fas fa-star star_on"></span>
-                            <span class="fas fa-star star_on"></span>
-                            <span class="fas fa-star "></span>
+                            @for (int i = 1; i < 5; i++)
+                            {
+                                <span class="fas fa-star @(i<Model.RateAvg?"star_on": "") "></span>
+
+                            }
+
                         </div>
                         <div class="review-widget">
                             <a href="#">(1 Reviews)</a> <span>|</span>
@@ -127,7 +128,7 @@
                 <li class="nav-item">
                     <a class="nav-link" id="tab2" data-toggle="tab" href="#tab-2" role="tab"
                        aria-controls="tab-2" aria-selected="true">
-                        REVIEWS (1)
+                        REVIEWS (@Model.TotaComments)
                     </a>
                 </li>
             </ul>
@@ -143,109 +144,102 @@
                 <div class="tab-pane fade" id="tab-2" role="tabpanel" aria-labelledby="tab2">
                     <div class="review-wrapper">
                         <h2 class="title-lg mb--20">1 REVIEW FOR AUCTOR GRAVIDA ENIM</h2>
-                        <div class="review-comment mb--20">
-                            <div class="avatar">
-                                <img src="~/image/icon/author-logo.png" alt="">
-                            </div>
-                            <div class="text">
-                                <div class="rating-block mb--15">
-                                    <span class="ion-android-star-outline star_on"></span>
-                                    <span class="ion-android-star-outline star_on"></span>
-                                    <span class="ion-android-star-outline star_on"></span>
-                                    <span class="ion-android-star-outline"></span>
-                                    <span class="ion-android-star-outline"></span>
+
+                        @foreach (var comment in Model.Book.BookComments)
+                        {
+                            <div class="review-comment mb--20">
+
+                                <div class="text">
+
+                                    <h6 class="author">
+                                        @comment.AppUser.Fulname – <span class="font-weight-400">@comment.CreatedDate</span>
+                                    </h6>
+                                    <p>
+                                        @comment.Text
+                                    </p>
                                 </div>
-                                <h6 class="author">
-                                    ADMIN – <span class="font-weight-400">March 23, 2015</span>
-                                </h6>
-                                <p>
-                                    Lorem et placerat vestibulum, metus nisi posuere nisl, in accumsan elit odio
-                                    quis mi.
-                                </p>
                             </div>
-                        </div>
-                        <h2 class="title-lg mb--20 pt--15">ADD A REVIEW</h2>
-                        <div class="rating-row pt-2">
-                            <p class="d-block">Your Rating</p>
-                            <span class="rating-widget-block">
-                                <input type="radio" name="star" id="star1">
-                                <label for="star1"></label>
-                                <input type="radio" name="star" id="star2">
-                                <label for="star2"></label>
-                                <input type="radio" name="star" id="star3">
-                                <label for="star3"></label>
-                                <input type="radio" name="star" id="star4">
-                                <label for="star4"></label>
-                                <input type="radio" name="star" id="star5">
-                                <label for="star5"></label>
-                            </span>
-                            <form action="https://demo.hasthemes.com/pustok-preview/pustok/" class="mt--15 site-form ">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label for="message">Comment</label>
-                                            <textarea name="message" id="message" cols="30" rows="10"
-                                                      class="form-control"></textarea>
+                        }
+                        @if (Model.HasComment)
+                        {
+                            <h2 class="title-lg mb--20 pt--15">ADD A REVIEW</h2>
+                            <div class="rating-row pt-2">
+                                <p class="d-block">Your Rating</p>
+                                <span class="rating-widget-block">
+                                    <input form="commentform" type="radio" value="5" asp-for="@Model.BookComment.Rate" id="star1" />
+                                    <label for="star1"></label>
+                                    <input form="commentform" type="radio" value="4" asp-for="@Model.BookComment.Rate" id="star2" />
+                                    <label for="star2"></label>
+                                    <input form="commentform" type="radio" value="3" asp-for="@Model.BookComment.Rate" id="star3" />
+                                    <label for="star3"></label>
+                                    <input form="commentform" type="radio" value="2" asp-for="@Model.BookComment.Rate" id="star4" />
+                                    <label for="star4"></label>
+                                    <input form="commentform" type="radio" value="1" asp-for="@Model.BookComment.Rate" id="star5" />
+                                    <label for="star5"></label>
+                                </span>
+
+                                <form id="commentform" asp-action="AddComment" class="mt--15 site-form ">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="message">Comment</label>
+                                                <input type="hidden" asp-for="@Model.BookComment.BookId" value="@Model.Book.Id" />
+                                                <input asp-for="@Model.BookComment.Text" cols="30" rows="10" class="form-control">
+                                            </div>
+                                        </div>
+
+                                        <!-- Gizli input, Rate qiymətini saxlayacaq -->
+                                        <input type="hidden" id="rate" name="Rate" value="0" />
+
+                                        <div class="col-lg-4">
+                                            <div class="submit-btn">
+                                                <button type="submit" class="btn btn-black">Post Comment</button>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-4">
-                                        <div class="form-group">
-                                            <label for="name">Name *</label>
-                                            <input type="text" id="name" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="form-group">
-                                            <label for="email">Email *</label>
-                                            <input type="text" id="email" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="form-group">
-                                            <label for="website">Website</label>
-                                            <input type="text" id="website" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="submit-btn">
-                                            <a href="#" class="btn btn-black">Post Comment</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+                                </form>
+
+
+
+
+
+
+                            </div>
+                        }
+
+                       
                     </div>
                 </div>
             </div>
         </div>
-@* <div class="tab-product-details">
-          <div class="brand">
-            <img src="~/image/others/review-tab-product-details.jpg" alt="">
-          </div>
-          <h5 class="meta">Reference <span class="small-text">demo_5</span></h5>
-          <h5 class="meta">In stock <span class="small-text">297 Items</span></h5>
-          <section class="product-features">
-            <h3 class="title">Data sheet</h3>
-            <dl class="data-sheet">
-              <dt class="name">Compositions</dt>
-              <dd class="value">Viscose</dd>
-              <dt class="name">Styles</dt>
-              <dd class="value">Casual</dd>
-              <dt class="name">Properties</dt>
-              <dd class="value">Maxi Dress</dd>
-            </dl>
-          </section>
+        @* <div class="tab-product-details">
+        <div class="brand">
+        <img src="~/image/others/review-tab-product-details.jpg" alt="">
+        </div>
+        <h5 class="meta">Reference <span class="small-text">demo_5</span></h5>
+        <h5 class="meta">In stock <span class="small-text">297 Items</span></h5>
+        <section class="product-features">
+        <h3 class="title">Data sheet</h3>
+        <dl class="data-sheet">
+        <dt class="name">Compositions</dt>
+        <dd class="value">Viscose</dd>
+        <dt class="name">Styles</dt>
+        <dd class="value">Casual</dd>
+        <dt class="name">Properties</dt>
+        <dd class="value">Maxi Dress</dd>
+        </dl>
+        </section>
         </div> -->
-    </div> *@
-    <!--=================================
-        RELATED PRODUCTS BOOKS
-    ===================================== -->
-    <section class="">
-        <div class="container">
-            <div class="section-title section-title--bordered">
-                <h2>RELATED PRODUCTS</h2>
-            </div>
-            <div class="product-slider sb-slick-slider slider-border-single-row" data-slick-setting='{
+        </div> *@
+        <!--=================================
+            RELATED PRODUCTS BOOKS
+        ===================================== -->
+        <section class="">
+            <div class="container">
+                <div class="section-title section-title--bordered">
+                    <h2>RELATED PRODUCTS</h2>
+                </div>
+                <div class="product-slider sb-slick-slider slider-border-single-row" data-slick-setting='{
                 "autoplay": true,
                 "autoplaySpeed": 8000,
                 "slidesToShow": 4,
@@ -256,7 +250,7 @@
                 {"breakpoint":768, "settings": {"slidesToShow": 2} },
                 {"breakpoint":480, "settings": {"slidesToShow": 1} }
             ]'>
-                @Html.Partial("_BooksPartial", Model.RelatedBooks)
+                    @Html.Partial("_BooksPartial", Model.RelatedBooks)
+                </div>
             </div>
-        </div>
-    </section>
+        </section>

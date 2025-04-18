@@ -15,6 +15,7 @@ namespace PustokTask.Data
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Setting> Settings { get; set; }
         public DbSet<AppUser> AppUsers { get; set; }
+        public DbSet<BookComment> BookComments { get; set; }
         public PustokDbContex(DbContextOptions options) : base(options)
         {
         }

@@ -9,6 +9,8 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using NuGet.Protocol;
 using PustokTask.Services;
+using PustokTask.Settings;
+using System.Configuration;
 
 namespace PustokTask.Controllers;
 
@@ -18,15 +20,18 @@ public class AccountController : Controller
 	private readonly SignInManager<AppUser> _signInManager;
 	private readonly RoleManager<IdentityRole> _roleManager;
 	private readonly EmailService emailService;
+    private readonly IConfiguration _configuration;		
 
-	public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager, EmailService emailService)
-	{
-		_userManager = userManager;
-		_signInManager = signInManager;
-		_roleManager = roleManager;
-		this.emailService = emailService;
-	}
-	[HttpGet]
+
+    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager, EmailService emailService, IConfiguration configuration)
+    {
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _roleManager = roleManager;
+        this.emailService = emailService;
+        _configuration = configuration;
+    }
+    [HttpGet]
 	public async Task<IActionResult> Register()
 	{
 		return View();
@@ -76,7 +81,7 @@ public class AccountController : Controller
 		string body = await streamReader.ReadToEndAsync();
 		body = body.Replace("{{url}}", url);
 		body = body.Replace("{{usarname}}", user.Fulname);
-		emailService.SendEmail(user.Email, "Verify Email", body);
+		 emailService.SendEmail(user.Email, "Verify Email", body);
 
 
 		return RedirectToAction("login");
@@ -246,35 +251,38 @@ public class AccountController : Controller
 		return View();
 	}
 	[HttpPost]
-	public async Task<IActionResult> ForgotPassword(ForgotPasswordVm vm)
-	{
-		if (!ModelState.IsValid)
-		{
-			return View();
-		}
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordVm vm)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View();
+        }
 
-		var user = await _userManager.FindByEmailAsync(vm.Email);
+        var user = await _userManager.FindByEmailAsync(vm.Email);
 
-		if (user == null)
-		{
-			ModelState.AddModelError("", "Email not found");
-			return View();
-		}
-		var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-		var url = Url.Action("ResertPassword", "Account", new { email = user.Email, token = token }, Request.Scheme);
+        if (user == null)
+        {
+            ModelState.AddModelError("", "Email not found");
+            return View();
+        }
 
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-		using StreamReader streamReader = new StreamReader("wwwroot/templates/forgotpassword.html");
-		string body =await streamReader.ReadToEndAsync();
-		body = body.Replace("{{url}}" , url);
-		body = body.Replace("{{usarname}}" , user.Fulname);
+        var url = Url.Action("ResertPassword", "Account", new { email = user.Email, token = token }, Request.Scheme);
 
-		emailService.SendEmail(user.Email, "resert password", body);
+        using StreamReader streamReader = new StreamReader("wwwroot/templates/forgotpassword.html");
+        string body = await streamReader.ReadToEndAsync();
 
-		return RedirectToAction("login");
+        body = body.Replace("{{url}}", url);
+        body = body.Replace("{{username}}", user.Fulname); 
+        var emailSettings = _configuration.GetSection("Email").Get<EmailSettings>();
 
-	}
-	public async Task<IActionResult> ResertPassword()
+        emailService.SendEmail(user.Email, "reset password", body);
+
+        return RedirectToAction("login");
+    }
+
+    public async Task<IActionResult> ResertPassword()
 	{
 		return View();
 	}
