@@ -1,16 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MimeKit.Text;
-using MimeKit;
 using PustokTask.Models;
-using PustokTask.ViewModels;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using NuGet.Protocol;
 using PustokTask.Services;
-using PustokTask.Settings;
-using System.Configuration;
+using PustokTask.ViewModels;
 
 namespace PustokTask.Controllers;
 
@@ -154,7 +147,9 @@ public class AccountController : Controller
 			return View(vm);
 		}
 
-		return returnUrl != null ? Redirect(returnUrl) : RedirectToAction("Index", "Home");
+		Response.Cookies.Delete("basket");
+
+        return returnUrl != null ? Redirect(returnUrl) : RedirectToAction("Index", "Home");
 	}
 
 

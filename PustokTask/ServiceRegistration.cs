@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PPustokTask.Services;
 using PustokTask.Data;
 using PustokTask.Models;
 using PustokTask.Services;
@@ -13,8 +14,8 @@ namespace PustokTask
 		{
 			services.AddControllersWithViews();
 			
-
-			services.ConfigureApplicationCookie(opt =>
+			services.AddHttpContextAccessor();
+            services.ConfigureApplicationCookie(opt =>
 			{
 				opt.Events.OnRedirectToLogin = opt.Events.OnRedirectToAccessDenied = context =>
 				{
@@ -33,6 +34,7 @@ namespace PustokTask
 				};
 			});
 			services.AddScoped<EmailService>();
+			services.AddScoped<LayoutService>();
 			services.Configure<EmailSetting>(config.GetSection("Email"));
 
 			services.AddIdentity<AppUser, IdentityRole>(options =>

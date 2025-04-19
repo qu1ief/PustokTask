@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using PustokTask.Data;
+using PustokTask.Models;
 using PustokTask.ViewModels;
 
 namespace PustokTask.Controllers
@@ -8,10 +11,12 @@ namespace PustokTask.Controllers
     public class BasketController : Controller
     {
         private readonly PustokDbContex _pustokDbContex;
+        private readonly UserManager<AppUser> _userManager;
 
-        public BasketController(PustokDbContex pustokDbContex)
+        public BasketController(PustokDbContex pustokDbContex, UserManager<AppUser> userManager)
         {
             _pustokDbContex = pustokDbContex;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -21,26 +26,26 @@ namespace PustokTask.Controllers
 
 
 
-        public IActionResult AddToBasket(int?id)
+        public async Task<IActionResult> AddToBasket(int? id)
 
         {
-            if(id == null)
+            if (id == null)
             {
                 return NotFound();
             }
-            var book= _pustokDbContex.Books
+            var book = _pustokDbContex.Books
                 .FirstOrDefault(b => b.Id == id);
 
-            if(book == null)
+            if (book == null)
             {
                 return NotFound();
             }
 
-            List<BasketVM> list = new ();
+            List<BasketVM> list = new();
 
 
             var basket = HttpContext.Request.Cookies["basket"];
-            if(basket != null)
+            if (basket != null)
             {
                 list = JsonConvert.DeserializeObject<List<BasketVM>>(basket);
             }
@@ -51,7 +56,7 @@ namespace PustokTask.Controllers
 
             var existItems = list.FirstOrDefault(b => b.BookId == book.Id);
 
-            if (existItems !=null)
+            if (existItems != null)
             {
                 existItems.Count++;
             }
@@ -67,9 +72,37 @@ namespace PustokTask.Controllers
                 });
 
             }
-            Response.Cookies.Append("basket", JsonConvert.SerializeObject(list));
 
-            return Json(list);
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = _userManager.Users
+                    .Include(b => b.BasketItems)
+                    .FirstOrDefault(u => u.UserName == User.Identity.Name);
+
+                var existUserBasketItem = user.BasketItems
+                    .FirstOrDefault(b => b.BookId == book.Id);
+                if (existUserBasketItem != null)
+                {
+                    existUserBasketItem.Count++;
+                }
+                else
+                {
+                    _pustokDbContex.DbBasketItems.Add(new DbBasketItem
+                    {
+                        BookId = book.Id,
+                        Count = 1,
+                        AppUserId = user.Id
+                    });
+
+                }
+                    _pustokDbContex.SaveChanges();
+
+                var existBook = _pustokDbContex.Books
+                    .FirstOrDefault(b => b.Id == book.Id);
+                Response.Cookies.Append("basket", JsonConvert.SerializeObject(list));
+
+            }
+                return PartialView("_BasketPartial",list);
         }
     }
 }
