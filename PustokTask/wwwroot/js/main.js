@@ -10,18 +10,17 @@
         $('#quickModal').modal('show');
     });
 
-   
-});
+    $('.addtobasket').click(function (e){
+        e.preventDefault();
 
-$(document).on('click', '.addtobasket', function (e) {
-    e.preventDefault(); 
+        let url = $(this).attr('href');
 
-    let url = $(this).attr('href');
-
-    fetch(url)
-        .then(response => response.text())
-        .then(data => {
-            $(".cart-dropdown-block").html(data);
-        })
-        .catch(error => console.error("Xəta:", error));
+        alert(url)
+            fetch(url)
+            .then(response => response.text())
+            .then(data => {
+                $(".cart-dropdown-block").html(data);
+          
+            });
+    }
 });

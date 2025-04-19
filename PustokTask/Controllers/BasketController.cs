@@ -21,7 +21,18 @@ namespace PustokTask.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var basket = HttpContext.Request.Cookies["basket"];
+
+            List<BasketVM> list;
+            if (basket != null)
+            {
+                list = JsonConvert.DeserializeObject<List<BasketVM>>(basket);
+            }
+            else
+            {
+                list = new List<BasketVM>();
+            }
+            return View(list);
         }
 
 
