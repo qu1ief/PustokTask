@@ -17,6 +17,8 @@ namespace PustokTask.Data
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<BookComment> BookComments { get; set; }
         public DbSet<DbBasketItem> DbBasketItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public PustokDbContex(DbContextOptions options) : base(options)
         {
         }

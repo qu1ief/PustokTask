@@ -31,6 +31,19 @@ namespace PustokTask.Controllers
             else
             {
                 list = new List<BasketVM>();
+
+                foreach (var item in list) 
+                {
+
+
+                    var book = _pustokDbContex.Books
+						.Include(b => b.BookImages)
+						.FirstOrDefault(b => b.Id == item.BookId);
+
+                    item.MainImage = book.BookImages?.FirstOrDefault()?.Image;
+                    item.Name = book.Name;
+                    item.BookPrice = book.Price;
+				}
             }
             return View(list);
         }
@@ -44,7 +57,7 @@ namespace PustokTask.Controllers
             {
                 return NotFound();
             }
-            var book = _pustokDbContex.Books
+            var book = _pustokDbContex.Books.Include(x=>x.BookImages)
                 .FirstOrDefault(b => b.Id == id);
 
             if (book == null)
@@ -77,7 +90,7 @@ namespace PustokTask.Controllers
                 {
                     BookId = book.Id,
                     Name = book.Name,
-                    MainImage = book.BookImages?.FirstOrDefault(i => i.Status == true)?.Image,
+                    MainImage = book.BookImages?.FirstOrDefault()?.Image,
                     BookPrice = book.Price,
                     Count = 1
                 });
@@ -110,9 +123,9 @@ namespace PustokTask.Controllers
 
                 var existBook = _pustokDbContex.Books
                     .FirstOrDefault(b => b.Id == book.Id);
-                Response.Cookies.Append("basket", JsonConvert.SerializeObject(list));
 
             }
+                Response.Cookies.Append("basket", JsonConvert.SerializeObject(list));
                 return PartialView("_BasketPartial",list);
         }
     }

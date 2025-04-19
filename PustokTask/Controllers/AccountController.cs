@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PustokTask.Data;
 using PustokTask.Models;
 using PustokTask.Services;
 using PustokTask.ViewModels;
@@ -14,15 +16,17 @@ public class AccountController : Controller
 	private readonly RoleManager<IdentityRole> _roleManager;
 	private readonly EmailService emailService;
     private readonly IConfiguration _configuration;		
+	private readonly PustokDbContex pustokDbContex;
 
 
-    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager, EmailService emailService, IConfiguration configuration)
+    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager, EmailService emailService, IConfiguration configuration, PustokDbContex pustokDbContex)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _roleManager = roleManager;
         this.emailService = emailService;
         _configuration = configuration;
+        this.pustokDbContex = pustokDbContex;
     }
     [HttpGet]
 	public async Task<IActionResult> Register()
@@ -174,8 +178,10 @@ public class AccountController : Controller
 
 		UserProfileVm vm = new UserProfileVm
 		{
-			UserUpdateProfilee = userUpdateProfile
-		};
+			UserUpdateProfilee = userUpdateProfile,
+			Orders = pustokDbContex.Orders.Where(o => o.AppUserId == user.Id).Include(o => o.Items).ThenInclude(i => i.Book).ToList(),
+
+        };
 
 		return View(vm);
 	}
